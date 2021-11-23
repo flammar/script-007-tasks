@@ -1,4 +1,4 @@
 
-# <project name> project
+# SKM File server project
 
-Author is <author name>.
+Author is Mikhail Skidan.

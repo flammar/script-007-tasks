@@ -1,68 +1,55 @@
 
-Do the following changes in `initial` feature branch:
+# Задание 1: Настройка окружения
 
-1. Update `README.md`:
-
-   - fill project name
-   - fill author name
-
-2. Create virtual environment for Python 3:
-
-For Linux:
+Выполните задание в ветке `01_initial`:
 
 ```console
-$ python3 -m venv venv3
-$ source venv3/bin/activate
+$ git checkout -b 01_initial master
+$ git fetch trainer
+$ git merge trainer/01_initial
 ```
 
-For Windows:
+## Обновление README
+
+Обновите файл `README.md`:
+
+- заполните название проекта `PROJECT_NAME`
+- заполните автора проекта `AUTHOR_NAME`
+
+## Создание виртуального окружения
+
+Если виртуальное окружение ещё не было создано, то выполните следующие шаги, иначе пропустите этот раздел.
+
+Для Windows:
 
 ```console
-> c:\Python310\python.exe -m virtualenv venv3
-> venv3\Scripts\activate.bat
+> python -m venv venv
+> c:\Python310\python.exe -m venv venv  # вариант с явным выбором интерпретатора
+> venv\Scripts\activate.bat
 > c:\Python310\python.exe -m pip install --upgrade pip
 ```
 
-Create empty `requirements.txt` file in repo root.
-
-3. [hard] Create virtual environment for Python 2:
-
-For Linux:
+Для Linux:
 
 ```console
-$ pip2 install --upgrade virtualenv
-$ python2 -m virtualenv venv2
-$ source venv2/bin/activate
-$ pip install --upgrade pathlib
+$ python3 -m venv venv
+$ source venv/bin/activate
 ```
 
-For Windows:
+## Добавление файла завимостей проекта
+
+Добавьте пустой файл `requirements.txt` в корень репозитория.
+
+## Настройка Git
+
+Установите параметры пользователя для текущего проекта. Например:
 
 ```console
-> c:\Python27\python.exe -m pip install --upgrade virtualenv
-> c:\Python27\python.exe -m virtualenv venv2
-> venv2\Scripts\activate.bat
-> c:\Python27\python.exe -m pip install --upgrade pip
-> c:\Python27\python.exe -m pip install --upgrade wheel
-> c:\Python27\python.exe -m pip install --upgrade pathlib
-> pip install --upgrade -r requirements2.txt
+$ git config user.name "Maxim Suslov"
+$ git config user.email maxim.suslov@dxc.com
 ```
 
-Create `requirements.txt` file:
-
-```text
-pip
-wheel
-pathlib
-```
-
-Execute:
-
-```console
-$ pip install --upgrade -r requirements.txt
-```
-
-4. Add `.gitignore` file. Possible content is the following:
+Добавьте файл `.gitignore` в корень репозитория. Ниже представлено типовое содержимое данного файла:
 
 ```gitignore
 # python
@@ -72,4 +59,11 @@ __pycache__/
 # virtual environment
 .venv*/
 venv*/
+
+# Pycharm IDE
+/.idea/
+
+# VS Code IDE
+/.vscode/
+*.code-workspace
 ```
