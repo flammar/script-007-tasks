@@ -1,4 +1,4 @@
 
-# File server project
+# SKM File server project
 
-Author is Maxim Suslov.
+Author is Mikhail Skidan.
