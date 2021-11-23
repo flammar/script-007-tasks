@@ -1,4 +1,4 @@
 
-# PROJECT_NAME project
+# File server project
 
-Author is AUTHOR_NAME.
+Author is Maxim Suslov.
