@@ -2,24 +2,17 @@ import datetime
 import os
 import os.path
 import re
-# from datetime import date
 from os import stat_result
 
-_CONTAINER_DIR = ""
-
-
-def __init__():
-    global _CONTAINER_DIR
-    _CONTAINER_DIR = os.path.realpath(os.getcwd()).strip()
+_DATA_DIR = os.path.realpath(os.getcwd()).strip()
 
 
 def _path_check(path: str) -> None:
     clean_path = path.strip()
     if bool(re.search(r'[^A-Za-z0-9-_/.\\%&]', clean_path)):
         raise ValueError("{}: path contains invalid characters".format(path))
-    if os.path.commonpath([os.path.realpath(clean_path), _CONTAINER_DIR]) != _CONTAINER_DIR:
+    if os.path.commonpath([os.path.realpath(clean_path), _DATA_DIR]) != _DATA_DIR:
         raise ValueError("{}: path is forbidden".format(path))
-    # return bool(re.search(r'(^|[\\/])\.\.($|[\\/])', path))
 
 
 def _existence_check(filename):
@@ -44,7 +37,6 @@ def get_current_dir() -> str:
         current directory of app
     """
     return os.path.realpath(os.getcwd()).strip()
-    # pass
 
 
 def change_dir(path: str, autocreate: bool = True) -> None:
@@ -67,7 +59,6 @@ def change_dir(path: str, autocreate: bool = True) -> None:
         else:
             os.makedirs(real_path)
     os.chdir(path)
-    # pass
 
 
 def get_files(filename: str = None) -> list:
@@ -89,7 +80,6 @@ def get_files(filename: str = None) -> list:
         raise RuntimeError("{}: directory does not exist".format(filename))
     return list(map(lambda e: ({"name": e.name, **_stat_data(e.stat())}),
                     filter(lambda e1: (e1.name.startswith('.') and e1.is_file()), os.scandir(real_path))))
-    # pass
 
 
 def _time(time):
@@ -123,8 +113,6 @@ def get_file_data(filename: str) -> dict:
     with open(path1, mode='rb') as file:
         return {"name": os.path.basename(path1), "content": file.read().decode(), **_stat_data(os.stat(path1))}
 
-    # pass
-
 
 def create_file(filename: str, content: str = None) -> dict:
     """Create a new file.
@@ -153,8 +141,6 @@ def create_file(filename: str, content: str = None) -> dict:
     return {"name": os.path.basename(real_path), "content": "" if content is None else content,
             **_stat_data(os.stat(real_path), False)}
 
-    # pass
-
 
 def delete_file(filename: str) -> None:
     """Delete file.
@@ -173,7 +159,5 @@ def delete_file(filename: str) -> None:
         os.rmdir(path1)
     else:
         os.remove(path1)
-    # pass
 
 
-__init__()
