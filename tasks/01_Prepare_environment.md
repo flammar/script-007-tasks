@@ -1,14 +1,6 @@
 
 # Задание 1: Настройка окружения
 
-Выполните задание в ветке `01_initial`:
-
-```console
-$ git checkout -b 01_initial master
-$ git fetch trainer
-$ git merge trainer/01_initial
-```
-
 ## Обновление README
 
 Обновите файл `README.md`:
@@ -53,8 +45,8 @@ $ git config user.email maxim.suslov@dxc.com
 
 ```gitignore
 # python
-__pycache__/
 *.pyc
+__pycache__/
 
 # virtual environment
 .venv*/

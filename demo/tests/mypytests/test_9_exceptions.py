@@ -3,7 +3,7 @@ import os
 import pytest
 
 # More information about exception handling
-# https://docs.pytest.org/en/6.2.x/assert.html#assertions-about-expected-exceptions
+# https://docs.pytest.org/en/latest/how-to/assert.html#assertions-about-expected-exceptions
 
 
 class TestExceptions:
@@ -14,7 +14,6 @@ class TestExceptions:
             print(x.a)
 
     def test_few_exceptions(self):
-        # on Windows and Linux
+        # Different exceptions are on Windows and Linux
         with pytest.raises((WindowsError, OSError)):
             os.chdir('NotExistingDirectory')
-

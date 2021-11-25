@@ -1,4 +1,4 @@
-from tests.myfuncs import myadd
+from demo.tests.myfuncs import myadd
 
 
 def test_myadd():

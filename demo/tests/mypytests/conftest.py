@@ -3,6 +3,9 @@ import os
 import pytest
 
 
+# File `conftest.py` (name is fixed) contains common fixtures for tests
+
+
 @pytest.fixture(scope='function')
 def prepare_testfile(request):
     print('prepare_testfile: before test')
