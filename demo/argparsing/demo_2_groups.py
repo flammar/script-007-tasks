@@ -1,3 +1,14 @@
+import argparse
+
+__version__ = "0.1.0"
+
+
+# python demo/argparsing/demo_2_groups.py -v
+# python demo/argparsing/demo_2_groups.py -h
+# python demo/argparsing/demo_2_groups.py create -h
+# python demo/argparsing/demo_2_groups.py create abc.txt
+# python demo/argparsing/demo_2_groups.py read abc.txt
+
 def parse_args():
     """Command line parser."""
 
@@ -19,24 +30,37 @@ def parse_args():
 
     create_parser = subparsers.add_parser('create', help='Create file', parents=[debug_parser])
     create_parser.add_argument('file_name', nargs='?', help='New file', default="test.txt")
-
-    delete_parser = subparsers.add_parser('delete', help='Delete file', parents=[debug_parser])
-    delete_parser.add_argument('file_name', help='Delete file', default="test.txt")
+    create_parser.add_argument('mode', nargs='?', help='Mode to open file', default="rw")
 
     read_parser = subparsers.add_parser('read', help='Read file', parents=[debug_parser])
     read_parser.add_argument('file_name', help='Read file', default="test.txt")
 
     list_parser = subparsers.add_parser('list', help='Show files', parents=[debug_parser])
 
-    data_parser = subparsers.add_parser('data', help='Show files', parents=[debug_parser])
-    data_parser.add_argument('file_name', help='Show data file', default="test.txt")
-
-    create_parser.set_defaults(func=fs.create_file)
-    read_parser.set_defaults(func=fs.read_file)
-    delete_parser.set_defaults(func=fs.delete_file)
-    list_parser.set_defaults(func=fs.get_files)
-    data_parser.set_defaults(func=fs.get_file_data)
+    create_parser.set_defaults(func=create_file)
+    read_parser.set_defaults(func=read_file)
+    list_parser.set_defaults(func=get_files)
 
     options = parser.parse_args()
-
     return options
+
+
+def create_file(options):
+    print(f"create_file '{options.file_name}' with mode '{options.mode}'")
+
+
+def read_file(options):
+    print(f"read_file '{options.file_name}'")
+
+
+def get_files():
+    print('get_files')
+
+
+def main():
+    options = parse_args()
+    options.func(options)
+
+
+if __name__ == '__main__':
+    main()
