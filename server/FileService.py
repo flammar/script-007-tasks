@@ -39,26 +39,21 @@ def get_current_dir() -> str:
     return os.path.realpath(os.getcwd()).strip()
 
 
-def change_dir(path: str, autocreate: bool = True) -> None:
+def change_dir(path: str, auto_create: bool = True) -> None:
     """Change current directory of app.
 
     Args:
         path (str): Path to working directory with files.
-        autocreate (bool): Create folder if it doesn't exist.
+        auto_create (bool): Create folder if it doesn't exist.
 
     Raises:
-        RuntimeError: if directory does not exist and autocreate is False.
+        RuntimeError: if directory does not exist and auto_create is False.
         ValueError: if path is invalid.
     """
-    real_path = os.path.realpath(path.strip())
-    _not_file_check(path)
+    _not_file_check(_str_ensure(path))
     _path_check(path)
-    if not os.path.exists(real_path):
-        if not autocreate:
-            raise RuntimeError("{}: directory does not exist".format(real_path))
-        else:
-            os.makedirs(real_path)
-    os.chdir(path)
+    real_path = _dir_ensure(path, auto_create)
+    os.chdir(real_path)
 
 
 def get_files(filename: str = None) -> list:
@@ -72,7 +67,7 @@ def get_files(filename: str = None) -> list:
         - size (int): size of file in bytes.
     """
 
-    real_path = os.path.realpath((os.path.realpath(os.getcwd()) if filename is None else filename).strip())
+    real_path = os.path.realpath((os.path.realpath(os.getcwd()) if filename is None else _str_ensure(filename)).strip())
     _not_file_check(real_path)
     if filename is not None:
         _path_check(real_path)
@@ -84,6 +79,22 @@ def get_files(filename: str = None) -> list:
 
 def _time(time):
     return datetime.datetime.fromtimestamp(time)
+
+
+def _str_ensure(path, allow_none=True):
+    if path is None and not allow_none or not isinstance(path, str):
+        raise TypeError("{} is not string".format(path))
+    return path
+
+
+def _dir_ensure(path: str, auto_create: bool = True) -> str:
+    real_path = os.path.realpath(path.strip())
+    if not os.path.exists(real_path):
+        if not auto_create:
+            raise RuntimeError("{}: directory does not exist".format(path))
+        else:
+            os.makedirs(real_path)
+    return real_path
 
 
 def get_file_data(filename: str) -> dict:
@@ -105,7 +116,7 @@ def get_file_data(filename: str) -> dict:
         ValueError: if filename is invalid.
     """
 
-    _path_check(filename)
+    _path_check(_str_ensure(filename))
     _existence_check(filename)
     path1 = os.path.realpath(filename.strip())
     if not os.path.isfile(path1):
@@ -114,10 +125,11 @@ def get_file_data(filename: str) -> dict:
         return {"name": os.path.basename(path1), "content": file.read().decode(), **_stat_data(os.stat(path1))}
 
 
-def create_file(filename: str, content: str = None) -> dict:
+def create_file(filename: str, content: str = None, auto_create_dir: bool = True) -> dict:
     """Create a new file.
 
     Args:
+        auto_create_dir: Create folder for file if it doesn't exist.
         filename (str): Filename.
         content (str): String with file content.
 
@@ -129,14 +141,16 @@ def create_file(filename: str, content: str = None) -> dict:
         - size (int): size of file in bytes
 
     Raises:
+        RuntimeError: if file directory does not exist and auto_create_dir is False.
         ValueError: if filename is invalid.
     """
-    _path_check(filename)
+    _path_check(_str_ensure(filename))
     real_path = os.path.realpath(filename.strip())
     if os.path.isdir(real_path):
         raise RuntimeError("{} already exists and is a directory".format(filename))
-    if content is not None:
-        with open(real_path, mode='wb') as file:
+    _dir_ensure(os.path.dirname(real_path), auto_create_dir)
+    with open(real_path, mode='wb') as file:
+        if content is not None:
             file.write(content.encode())
     return {"name": os.path.basename(real_path), "content": "" if content is None else content,
             **_stat_data(os.stat(real_path), False)}
@@ -152,12 +166,10 @@ def delete_file(filename: str) -> None:
         RuntimeError: if file does not exist.
         ValueError: if filename is invalid.
     """
-    _path_check(filename)
+    _path_check(_str_ensure(filename))
     _existence_check(filename)
     path1 = os.path.realpath(filename.strip())
     if os.path.isdir(path1):
         os.rmdir(path1)
     else:
         os.remove(path1)
-
-

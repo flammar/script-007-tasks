@@ -18,6 +18,7 @@ def test_myadd_nns(num1, num2, sum):
     (0, 0, 0),     # test-case 1
     (3, 1, 2),     # test-case 2
     (6, 11, -5),   # test-case 3
+    (6, 11, -2-3),   # test-case 3+
     (12, 11, 1),   # test-case 4
     # (6, 11, 5, 6),  # broken
 ])

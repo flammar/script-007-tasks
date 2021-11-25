@@ -31,6 +31,7 @@ def case_implicit_var():
 class TestSuite:
 
     def test_explicit(self, case_explicit):
+        print("case_explicit= {}".format(case_explicit))
         assert case_explicit == 'CASE_EXPLICIT'
 
     # if we need data from a fixture, then we can added it explicitly
