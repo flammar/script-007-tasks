@@ -1,14 +1,6 @@
 # python
-*.pyc
+.pytest_cache/
 __pycache__/
 
-# virtual environment
-.venv*/
-venv*/
-
-# Pycharm IDE
-/.idea/
-
-# VS Code IDE
-/.vscode/
-*.code-workspace
+# default data folder
+/data/
