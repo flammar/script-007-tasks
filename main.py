@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import os
-import sys
 import logging
 from importlib import reload
+
+from logger_setup import logger_setup
 from server import FileService
 
 
@@ -32,3 +33,13 @@ def main():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     main()
+
+logger_setup()
+
+print('started')
+logger = logging.getLogger('myprogram')
+logger.error('example of error message')
+logger.warning('example of warning message')
+logger.info('example of information message')
+logger.debug('example of debug message')
+print('finished')

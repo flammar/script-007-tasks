@@ -5,10 +5,12 @@ import os.path
 import re
 from os import stat_result
 
+
 _DATA_DIR = os.path.realpath(os.getcwd()).strip()
-logging.basicConfig(level=logging.DEBUG)
-_logger = logging.getLogger('server.FileService')
-_logger.setLevel(level=logging.INFO)
+# logging.basicConfig(level=logging.DEBUG)
+# _logger = logging.getLogger('server.FileService')
+# _logger.setLevel(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def _path_check(path: str) -> str:
@@ -45,7 +47,7 @@ def get_current_dir() -> str:
         current directory of app
     """
     result = os.path.realpath(os.getcwd()).strip()
-    _logger.info(f'Current directory: {result}')
+    logger.info(f'Current directory: {result}')
     return result
 
 
@@ -62,7 +64,7 @@ def change_dir(path: str, autocreate: bool = True) -> None:
     """
 
     real_path = _dir_ensure(_path_check(_as_not_file(_str_ensure(path))), autocreate)
-    _logger.info(f'Current directory changed to {real_path}')
+    logger.info(f'Current directory changed to {real_path}')
     os.chdir(real_path)
 
 
@@ -85,7 +87,7 @@ def get_files(filename: str = None) -> list:
         raise RuntimeError("{}: directory does not exist".format(filename))
     files = list(map(lambda e: ({"name": e.name, **_stat_data(e.stat())}),
                      filter(lambda e1: (e1.name.startswith('.') and e1.is_file()), os.scandir(real_path))))
-    _logger.info(f'Got file list from {real_path}: {files}')
+    logger.info(f'Got file list from {real_path}: {files}')
     return files
 
 
@@ -133,7 +135,7 @@ def get_file_data(filename: str) -> dict:
         raise RuntimeError("{} is not a file".format(filename))
     with open(path, mode='rb') as file:
         data = {"name": os.path.basename(path), "content": file.read().decode(), **_stat_data(os.stat(path))}
-        _logger.info(f'Got file data from {path} ({filename}): {data}')
+        logger.info(f'Got file data from {path} ({filename}): {data}')
         return data
 
 
@@ -165,7 +167,7 @@ def create_file(filename: str, content: str = None, auto_create_dir: bool = True
             file.write(content.encode())
     file_rec = {"name": os.path.basename(real_path), "content": "" if content is None else content,
                 **_stat_data(os.stat(real_path), False)}
-    _logger.info(f'Created file: {file_rec} on {real_path} ({filename})')
+    logger.info(f'Created file: {file_rec} on {real_path} ({filename})')
     return file_rec
 
 
@@ -185,4 +187,4 @@ def delete_file(filename: str) -> None:
         os.rmdir(path)
     else:
         os.remove(path)
-    _logger.info(f'Deleted file: {path} ({filename})')
+    logger.info(f'Deleted file: {path} ({filename})')
