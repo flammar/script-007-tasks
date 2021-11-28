@@ -10,11 +10,15 @@ from server import FileService
 def main():
     argv = sys.argv
     parser = argparse.ArgumentParser()
+    # parser.add_argument('-d', default='data', type=str, help="working directory (default: 'data')",
+    #                     required=False)
     parser.add_argument('-d', '--dir', default='data', type=str, help="working directory (default: 'data')",
                         required=False)
     params = parser.parse_args()
     logging.debug(FileService.get_current_dir())
     # FileService.change_dir(".")
+    logging.debug("params: {}".format(params))
+
     if bool(params.dir):
         os.chdir(params.dir)
     # if bool(params.d):
