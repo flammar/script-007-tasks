@@ -12,3 +12,5 @@ venv*/
 # VS Code IDE
 /.vscode/
 *.code-workspace
+
+*.log

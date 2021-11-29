@@ -30,14 +30,14 @@ os.removedirs(name) - удалить непустую папку
 
 os.path.dirname(path) - получить имя родительской папки
 
-```python
+```pycon
 >>> os.path.dirname('c:\\1\\2\\3.txt')
 'c:\\1\\2'
 ```
 
 os.path.join(path, *paths) - соединить несколько папок в один путь
 
-```python
+```pycon
 >>> os.path.join(os.getcwd(), 'data')
 'C:\\Work\\TC\\Trainings\\My\\python\\script-007\\demo\\argparsing\\data'
 
@@ -45,9 +45,9 @@ os.path.join(path, *paths) - соединить несколько папок в
 'C:\\Work\\TC\\Trainings\\My\\python\\script-007\\demo\\argparsing\\data\\testfiles'
 ```
 
-os.path.lexists(path) - проверить, что файл или папка существует
+os.path.exists(path) - проверить, что файл или папка существует
 
-```python
+```pycon
 >>> os.path.exists('c:\\1')
 False
 
@@ -63,3 +63,17 @@ os.path.isfile(path)
 
 
 os.path.getsize(path) - получить размер файла
+
+## Нормализация путей
+
+Python на Windows хорошо работает с обоими слешами. Но нужно учитывать это при сравнении:
+
+```python
+import os
+
+mydir = 'c:/data'  # допустим, так проще писать слеши
+os.chdir(mydir)
+assert os.getcwd() == os.path.normpath(mydir)  # при сравнении требуется нормализация
+# os.getcwd() == mydir -> False
+# os.getcwd() == os.path.normpath(mydir) -> True
+```
