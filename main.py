@@ -4,6 +4,7 @@ import logging
 import logging.config
 import os
 import logging
+import sys
 from importlib import reload
 
 from logger_setup import logger_setup
@@ -69,18 +70,11 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    main()
+    # logging.basicConfig(level=logging.DEBUG)
+    # main()
 
-logger_setup()
+    # logger_setup()
 
-print('started')
-logger = logging.getLogger('myprogram')
-logger.error('example of error message')
-logger.warning('example of warning message')
-logger.info('example of information message')
-logger.debug('example of debug message')
-print('finished')
     try:
         main()
     except KeyboardInterrupt:
