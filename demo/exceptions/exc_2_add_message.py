@@ -6,6 +6,9 @@ def func2():
     try:
         func1()
     except RuntimeError as err:
+        # do something additional
+        pass
+        # append error context
         err.args += ('func2 error',)
         raise
 

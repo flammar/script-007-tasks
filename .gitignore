@@ -13,4 +13,9 @@ venv*/
 /.vscode/
 *.code-workspace
 
+# default data folder
+/data/
+
+# app logs
 *.log
+*.log.*
