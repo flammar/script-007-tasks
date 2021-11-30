@@ -69,6 +69,13 @@ def main():
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
     print(f'FileService current dir: {FileService.get_current_dir()}')
     logging.debug("params: {}".format(params))
+    if bool(params.dir):
+        os.chdir(params.dir)
+
+    reload(FileService)
+    logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
+    FileService.change_dir(".")
+
     handler = WebHandler()
     app = web.Application()
     app.add_routes([
@@ -77,12 +84,6 @@ def main():
     ])
     web.run_app(app, port=config.port)
 
-    if bool(params.dir):
-        os.chdir(params.dir)
-
-    reload(FileService)
-    logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
-    FileService.change_dir(".")
 
 
 if __name__ == '__main__':
