@@ -25,6 +25,7 @@ def _init_settngs():
             'file': [None, [], str, 'log file.'],  # 'server.log'
         },
         'port': [8080, ["-p"], int, "server port"],
+        'autocreate': [None, [], bool, "autocreate directory if not existing"],
     }
 
 
@@ -81,4 +82,4 @@ class Config:
         self._args()
 
 
-config_data = Config()
+config = Config().data

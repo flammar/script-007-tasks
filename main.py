@@ -7,7 +7,7 @@ from importlib import reload
 
 from logger_setup import logger_setup
 from server import FileService
-from utils.Configs import config_data
+from utils.Configs import config
 from aiohttp import web
 
 from server.WebHandler import WebHandler
@@ -59,7 +59,7 @@ def main():
     #                     help='Log level to console (default is warning)')
     # parser.add_argument('-l', '--log-file', type=str, help='Log file.')
 
-    params = config_data.data
+    params = config
     # parser.parse_args()
     # setup_logger(level=logging.getLevelName(params.log_level.upper()), filename=params.log_file)
     setup_logger(level=logging.getLevelName(params.log.level), filename=params.log.file)
@@ -80,8 +80,10 @@ def main():
     app = web.Application()
     app.add_routes([
         web.get('/', handler.handle),
+        web.get('/', handler.handle),
         # TODO: add more routes
     ])
+    # web.run_app(app, port=config.port)
     web.run_app(app, port=config.port)
 
 

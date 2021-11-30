@@ -1,4 +1,6 @@
-pytest
+pytest~=6.2.5
 pytest-cov
 coverage
 dotted-dict
+
+aiohttp~=3.8.1
