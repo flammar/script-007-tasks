@@ -21,7 +21,7 @@ def _init_settngs():
         # 'config': ['config.ini'],
         'dir': ['data', ["-d"], str, "working directory (default: 'data')"],
         'log': {
-            'level': ['warning', ["-l"], str, 'log level (default: warning)', {}, lambda s: s.upper()],
+            'level': ['WARNING', ["-l"], str, 'log level (default: warning)', {}, lambda s: s.upper()],
             'file': [None, [], str, 'log file.'],  # 'server.log'
         },
         'port': [8080, ["-p"], int, "server port"],
@@ -41,6 +41,14 @@ def _param_name(i, prefix: str = ""):
     return prefix + i.replace(".", "_")
 
 
+def get_type(slot):
+    return get_(slot, 2, str)
+
+
+def get_conv(slot):
+    return get_(slot, 5, lambda x: x)
+
+
 @singleton
 class Config:
     settings = _init_settngs()
@@ -58,10 +66,9 @@ class Config:
         for i in self.params_keys:
             slot = getpath(self.settings, i)
             parser.add_argument(*(get_(slot, 1, [])), _param_name(i, '--'), default=getpath(self.data, i),
-                                required=False, type=get_(slot, 2, str),
-                                help=get_(slot, 3, slot), **(get_(slot, 4, {})),
-                                action=store_and_pipe_to(lambda v: setpath(self.data, i, v),
-                                                         get_(slot, 5, lambda x: x)))
+                                required=False, type=get_type(slot), help=get_(slot, 3, slot), **(get_(slot, 4, {})),
+                                action=store_and_pipe_to((lambda j: lambda v: setpath(self.data, j, v))(i),
+                                                         get_conv(slot)))
         parser.parse_args()
 
     def _env(self):
@@ -74,12 +81,17 @@ class Config:
             ini_parser.read_string('[default]\n' + stream.read())
             ini_params = dict(list((ini_parser['default'] or []).items()))
         for i in self.params_keys:
-            self.update_data(i, get_(ini_params, i))
+            slot = getpath(self.settings, i)
+            self.update_data(i, get_conv(slot)(get_type(slot)(get_(ini_params, i))))
 
     def set_data(self):
+        print("self.data: %s" % self.data)
         self._ini()
+        print("self.data: %s" % self.data)
         self._env()
+        print("self.data: %s" % self.data)
         self._args()
+        print("self.data: %s" % self.data)
 
 
 config = Config().data

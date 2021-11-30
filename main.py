@@ -2,6 +2,7 @@
 import logging
 import logging.config
 import logging
+import os
 import sys
 from importlib import reload
 
@@ -11,10 +12,10 @@ from utils.Configs import config
 from aiohttp import web
 
 from server.WebHandler import WebHandler
-from utils.Config import config
+# from utils.Config import config
 
 
-def setup_logger(level='NOTSET', filename=None):
+def setup_logger(level: str = 'NOTSET', filename: str = None):
     logger_conf = {
         'version': 1,
         'formatters': {
@@ -59,18 +60,17 @@ def main():
     #                     help='Log level to console (default is warning)')
     # parser.add_argument('-l', '--log-file', type=str, help='Log file.')
 
-    params = config
     # parser.parse_args()
     # setup_logger(level=logging.getLevelName(params.log_level.upper()), filename=params.log_file)
-    setup_logger(level=logging.getLevelName(params.log.level), filename=params.log.file)
+    setup_logger(level=config.log.level, filename=config.log.file)
     logging.debug('started')
     # logging.debug('config %s', config.to_dict())
 
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
     print(f'FileService current dir: {FileService.get_current_dir()}')
-    logging.debug("params: {}".format(params))
-    if bool(params.dir):
-        os.chdir(params.dir)
+    logging.debug("params: {}".format(config))
+    # if bool(config.dir):
+    #     os.chdir(config.dir)
 
     reload(FileService)
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
@@ -80,12 +80,17 @@ def main():
     app = web.Application()
     app.add_routes([
         web.get('/', handler.handle),
-        web.get('/', handler.handle),
-        # TODO: add more routes
+        web.get('/change_dir', handler.change_dir),
+        web.post('/change_dir', handler.change_dir),
+        web.post(r'/change_dir/{urlpath:[A-Za-z0-9-_/.\\%&]+}', handler.change_dir),
+        web.get('/files', handler.get_files),
+        web.get(r'/files/{urlpath:[A-Za-z0-9-_/.\\%&]+}/', handler.get_files),
+        web.get(r'/files/{filename:[A-Za-z0-9-_/.\\%&]+}', handler.get_file_data),
+        web.post('/files', handler.create_file),
+        web.delete('/files/{filename}', handler.delete_file),
     ])
     # web.run_app(app, port=config.port)
     web.run_app(app, port=config.port)
-
 
 
 if __name__ == '__main__':
