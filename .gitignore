@@ -6,6 +6,9 @@ __pycache__/
 .venv*/
 venv*/
 
+# Jupyter
+.ipynb_checkpoints/
+
 # Pycharm IDE
 /.idea/
 
@@ -15,6 +18,7 @@ venv*/
 
 # default data folder
 /data/
+/files/
 
 # app logs
 *.log

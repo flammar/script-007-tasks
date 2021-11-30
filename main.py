@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import argparse
 import logging
 import logging.config
-import os
 import logging
 import sys
 from importlib import reload
@@ -10,10 +8,14 @@ from importlib import reload
 from logger_setup import logger_setup
 from server import FileService
 from utils.Configs import config_data
+from aiohttp import web
+
+from server.WebHandler import WebHandler
+from utils.Config import config
 
 
 def setup_logger(level='NOTSET', filename=None):
-    config = {
+    logger_conf = {
         'version': 1,
         'formatters': {
             'default': {
@@ -33,14 +35,14 @@ def setup_logger(level='NOTSET', filename=None):
         }
     }
     if filename:
-        config['handlers']['file'] = {
+        logger_conf['handlers']['file'] = {
             'class': 'logging.FileHandler',
             'encoding': 'UTF-8',
             'formatter': 'default',
             'filename': filename,
         }
-        config['root']['handlers'].append('file')
-    logging.config.dictConfig(config)
+        logger_conf['root']['handlers'].append('file')
+    logging.config.dictConfig(logger_conf)
 
 
 def main():
@@ -67,6 +69,13 @@ def main():
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
     print(f'FileService current dir: {FileService.get_current_dir()}')
     logging.debug("params: {}".format(params))
+    handler = WebHandler()
+    app = web.Application()
+    app.add_routes([
+        web.get('/', handler.handle),
+        # TODO: add more routes
+    ])
+    web.run_app(app, port=config.port)
 
     if bool(params.dir):
         os.chdir(params.dir)
