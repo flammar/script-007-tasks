@@ -1,7 +1,7 @@
 from typing import List, Callable, Dict
 
 
-def setpath(my_dict: dict, key: str or List[str], value):
+def setpath(my_dict: dict, key: str or List[str], value: object) -> None:
     adeep(my_dict, key, lambda d, k: d.update({k: value}), True)
 
 
