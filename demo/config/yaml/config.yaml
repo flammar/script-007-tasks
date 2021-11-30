@@ -1,0 +1,9 @@
+servers:
+  - github.com:
+      user: msuslov
+      cert: mycert.crt
+  - myserver.com:
+      user: myuser
+defaults:
+  user: msuslov
+  port: 22

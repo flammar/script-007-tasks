@@ -9,6 +9,9 @@
 | ----------------------- | ----------------- |
 | 01. Настройка окружения | `01_prepare_env`  |
 | 02. Файловый сервис     | `02_file_service` |
+| 03. Логирование         | `03_logging`      |
+| 04. Настройка программы | `04_config`       |
+| 05. REST API            | `05_rest_api`     |
 
 Решение для каждого задания представлено в ветке с таким же названием, но с суффиксом `_solution`.
 
@@ -31,17 +34,20 @@ $ git checkout -b BRANCH_NAME master
 Далее необходимо подгрузить задание с одноимённой ветки с сервера:
 
 ```console
-$ git merge trainer/BRANCH_NAME
+$ git cherry-pick trainer/BRANCH_NAME
 ```
 
-Проверьте наличие конфликтов в выводе команды `git merge`. Если они есть, то разрешите их.
+Проверьте наличие конфликтов в выводе команды `git status`. Если они есть, то разрешите их.
 
 Пример команд для старта первого задания:
 
 ```console
 $ git checkout -b 01_prepare_env master
 $ git fetch trainer
-$ git merge trainer/01_prepare_env
+$ git cherry-pick trainer/01_prepare_env
+$ git status
+# исправление конфликтов, если есть и далее
+$ git commit
 ```
 
 Теперь в папке `tasks` появится файл с очередным заданием.
