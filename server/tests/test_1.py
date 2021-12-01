@@ -5,7 +5,7 @@ import re
 import pytest
 
 from server import FileService
-from server.tests.TestUtils import _random_filename, _random_text
+from server.tests.TestUtils import _random_filename, _random_text, in_random_dir
 
 file_with_content = (_random_filename(), _random_text(1234))
 file_with_content_in_subdir = (os.path.join(_random_filename(), _random_filename()), _random_text(1223))

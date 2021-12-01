@@ -1,6 +1,7 @@
 import argparse
 import configparser
 import os
+import sys
 
 import dotted_dict
 
@@ -15,16 +16,16 @@ _env_prefix = 'SERVER_'
 def _init_settngs():
     """
     Returns:
-            {"<section...>":{"<key...>":[<default>,[<extra keys...>],<type>,<help>,{extra options},converter]]}}
+            {"<section...>":{"<key...>":[[<default>,<test default>],[<extra keys...>],<type>,<help>,{extra options},converter]]}}
     """
     return {
         # 'config': ['config.ini'],
-        'dir': ['data', ["-d"], str, "working directory (default: 'data')"],
+        'dir': [['data', '.'], ["-d"], str, "working directory (default: 'data')"],
         'log': {
             'level': ['WARNING', ["-l"], str, 'log level (default: warning)', {}, lambda s: s.upper()],
-            'file': [None, [], str, 'log file.'],  # 'server.log'
+            'file': [ None, [], str, 'log file.'],  # 'server.log'
         },
-        'port': [8080, ["-p"], int, "server port"],
+        'port': [[8080, 0], ["-p"], int, "server port"],
         'autocreate': [None, [], bool, "autocreate directory if not existing"],
     }
 
@@ -32,8 +33,10 @@ def _init_settngs():
 def _init_config(my_settings):
     my_keys = keys(my_settings)
     res = {}
+    in_test = _is_in_test()
     for i in my_keys:
-        setpath(res, i, getpath(my_settings, i)[0])
+        v = getpath(my_settings, i)[0]
+        setpath(res, i, v if not isinstance(v, list) else v[1] if in_test else v[0])
     return res
 
 
@@ -47,6 +50,23 @@ def get_type(slot):
 
 def get_conv(slot):
     return get_(slot, 5, lambda x: x)
+
+
+def _is_in_test():
+    py_prog_file_name = os.path.basename(sys.argv[0])
+    return py_prog_file_name.startswith('_') and 'test' in py_prog_file_name
+
+
+def get_extra_keys(slot):
+    return get_(slot, 1, [])
+
+
+def get_help(slot, i):
+    return get_(slot, 3, i.split(".").pop())
+
+
+def get_extra(slot):
+    return get_(slot, 4, {})
 
 
 @singleton
@@ -65,8 +85,8 @@ class Config:
         parser = argparse.ArgumentParser()
         for i in self.params_keys:
             slot = getpath(self.settings, i)
-            parser.add_argument(*(get_(slot, 1, [])), _param_name(i, '--'), default=getpath(self.data, i),
-                                required=False, type=get_type(slot), help=get_(slot, 3, slot), **(get_(slot, 4, {})),
+            parser.add_argument(*(get_extra_keys(slot)), _param_name(i, '--'), default=getpath(self.data, i),
+                                required=False, type=get_type(slot), help=(get_help(slot, i)), **(get_extra(slot)),
                                 action=store_and_pipe_to((lambda j: lambda v: setpath(self.data, j, v))(i),
                                                          get_conv(slot)))
         parser.parse_args()
@@ -86,6 +106,8 @@ class Config:
 
     def set_data(self):
         print("self.data: %s" % self.data)
+        if _is_in_test():
+            return
         self._ini()
         print("self.data: %s" % self.data)
         self._env()

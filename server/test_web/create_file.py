@@ -1,5 +1,5 @@
 import requests
-from utils.StrUtils import to_json
+from utils.JsonUtils import to_json
 
 response = requests.post('http://127.0.0.1:8080/files', data=to_json({
     'filename': 'poem.txt',

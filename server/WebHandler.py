@@ -6,7 +6,7 @@ from aiohttp import web
 
 import server.FileService as FileService
 from utils.Configs import config
-from utils.JsonUtils import add_conv, is_datetime, datetime_encode, json_serialize_helper
+from utils.JsonUtils import json_serialize_helper, to_json
 from utils.ObjectUtils import not_none_f
 
 
@@ -21,13 +21,14 @@ async def _body(request: web.Request) -> str:
 
 def _success_response(aa):
     # return web.json_response({"status": "success", **aa})
-    return web.Response(body=json.dumps({"status": "success", **aa}, default=json_serialize_helper))
+    aa_ = {"status": "success", **aa}
+    return web.Response(body=to_json(aa_), content_type="application/json")
 
 
 def _failure_json(aa: dict or object):
     # return web.json_response({"status": "success", **aa})
     if isinstance(aa, dict):
-        return json.dumps({"status": "error", **aa}, default=json_serialize_helper)
+        return to_json({"status": "error", **aa})
     else:
         return json.dumps({"status": "error", 'message': str(aa)})
 

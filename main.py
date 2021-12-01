@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
-import logging
 import logging.config
 import logging
-import os
 import sys
 from importlib import reload
 
-from logger_setup import logger_setup
 from server import FileService
 from utils.Configs import config
 from aiohttp import web
 
-from server.WebHandler import WebHandler
 # from utils.Config import config
+from utils.WebHandlerUtils import get_aiohttp_server
 
 
 def setup_logger(level: str = 'NOTSET', filename: str = None):
@@ -76,20 +73,7 @@ def main():
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
     FileService.change_dir(".")
 
-    handler = WebHandler()
-    app = web.Application()
-    app.add_routes([
-        web.get('/', handler.handle),
-        web.get('/change_dir', handler.change_dir),
-        web.post('/change_dir', handler.change_dir),
-        web.post(r'/change_dir/{urlpath:[A-Za-z0-9-_/.\\%&]+}', handler.change_dir),
-        web.get('/files', handler.get_files),
-        web.get(r'/files/{urlpath:[A-Za-z0-9-_/.\\%&]+}/', handler.get_files),
-        web.get(r'/files/{filename:[A-Za-z0-9-_/.\\%&]+}', handler.get_file_data),
-        web.post('/files', handler.create_file),
-        web.post(r'/files/{urlpath:[A-Za-z0-9-_/.\\%&]+}', handler.create_file),
-        web.delete(r'/files/{filename:[A-Za-z0-9-_/.\\%&]+}', handler.delete_file),
-    ])
+    app = get_aiohttp_server()
     # web.run_app(app, port=config.port)
     web.run_app(app, port=config.port)
 

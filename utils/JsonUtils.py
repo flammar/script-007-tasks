@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Callable
 
 
@@ -33,3 +34,7 @@ def datetime_decode(obj: dict):
 
 
 json_serialize_helper = add_conv(lambda o: isinstance(o, bytes), bytes2str, add_conv(is_datetime, datetime_encode))
+
+
+def to_json(data):
+    return json.dumps(data, default=json_serialize_helper)
