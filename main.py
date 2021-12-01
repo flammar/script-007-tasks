@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-import argparse
-import logging
 import logging.config
-import os
 import logging
 import sys
 from importlib import reload
 
-from logger_setup import logger_setup
 from server import FileService
-from utils.Configs import config_data
+from utils.Configs import config
+from aiohttp import web
+
+# from utils.Config import config
+from utils.WebHandlerUtils import get_aiohttp_server
 
 
-def setup_logger(level='NOTSET', filename=None):
-    config = {
+def setup_logger(level: str = 'NOTSET', filename: str = None):
+    logger_conf = {
         'version': 1,
         'formatters': {
             'default': {
@@ -33,14 +33,14 @@ def setup_logger(level='NOTSET', filename=None):
         }
     }
     if filename:
-        config['handlers']['file'] = {
+        logger_conf['handlers']['file'] = {
             'class': 'logging.FileHandler',
             'encoding': 'UTF-8',
             'formatter': 'default',
             'filename': filename,
         }
-        config['root']['handlers'].append('file')
-    logging.config.dictConfig(config)
+        logger_conf['root']['handlers'].append('file')
+    logging.config.dictConfig(logger_conf)
 
 
 def main():
@@ -57,23 +57,25 @@ def main():
     #                     help='Log level to console (default is warning)')
     # parser.add_argument('-l', '--log-file', type=str, help='Log file.')
 
-    params = config_data.data
     # parser.parse_args()
     # setup_logger(level=logging.getLevelName(params.log_level.upper()), filename=params.log_file)
-    setup_logger(level=logging.getLevelName(params.log.level), filename=params.log.file)
+    setup_logger(level=config.log.level, filename=config.log.file)
     logging.debug('started')
     # logging.debug('config %s', config.to_dict())
 
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
     print(f'FileService current dir: {FileService.get_current_dir()}')
-    logging.debug("params: {}".format(params))
-
-    if bool(params.dir):
-        os.chdir(params.dir)
+    logging.debug("params: {}".format(config))
+    # if bool(config.dir):
+    #     os.chdir(config.dir)
 
     reload(FileService)
     logging.debug(f'FileService current dir: {FileService.get_current_dir()}')
     FileService.change_dir(".")
+
+    app = get_aiohttp_server()
+    # web.run_app(app, port=config.port)
+    web.run_app(app, port=config.port)
 
 
 if __name__ == '__main__':

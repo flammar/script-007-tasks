@@ -52,3 +52,18 @@ def get_(l: List or dict, i: int or str, default=None):
         return default
     else:
         return l[i]
+
+
+def not_none(*args):
+    for i in args:
+        if i is not None:
+            return i
+    return None
+
+
+def not_none_f(*args):
+    for i in args:
+        val = i()
+        if val is not None:
+            return val
+    return None

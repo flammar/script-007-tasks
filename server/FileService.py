@@ -5,7 +5,6 @@ import os.path
 import re
 from os import stat_result
 
-
 _DATA_DIR = os.path.realpath(os.getcwd()).strip()
 # logging.basicConfig(level=logging.DEBUG)
 # _logger = logging.getLogger('server.FileService')
@@ -82,11 +81,11 @@ def get_files(filename: str = None) -> list:
     real_path = _as_not_file(os.path.realpath((os.path.realpath(os.getcwd()) if filename is None else
                                                _str_ensure(filename)).strip()))
     if filename is not None:
-        _path_check(real_path)
+        _path_check(filename)
     if not os.path.exists(real_path):
         raise RuntimeError("{}: directory does not exist".format(filename))
     files = list(map(lambda e: ({"name": e.name, **_stat_data(e.stat())}),
-                     filter(lambda e1: (e1.name.startswith('.') and e1.is_file()), os.scandir(real_path))))
+                     filter(lambda e1: (e1.name != '.' and e1.is_file()), os.scandir(real_path))))
     logger.info(f'Got file list from {real_path}: {files}')
     return files
 
