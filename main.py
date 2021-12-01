@@ -87,7 +87,7 @@ def main():
         web.get(r'/files/{urlpath:[A-Za-z0-9-_/.\\%&]+}/', handler.get_files),
         web.get(r'/files/{filename:[A-Za-z0-9-_/.\\%&]+}', handler.get_file_data),
         web.post('/files', handler.create_file),
-        web.delete('/files/{filename}', handler.delete_file),
+        web.delete(r'/files/{filename:[A-Za-z0-9-_/.\\%&]+}', handler.delete_file),
     ])
     # web.run_app(app, port=config.port)
     web.run_app(app, port=config.port)

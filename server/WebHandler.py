@@ -1,33 +1,16 @@
 import json
 import os
-import datetime
 from importlib import reload
 
 from aiohttp import web
 
 import server.FileService as FileService
 from utils.Configs import config
-from utils.JsonUtils import add_conv
-from utils.ObjectUtils import not_none, not_none_f
+from utils.JsonUtils import add_conv, is_datetime, datetime_encode, json_serialize_helper
+from utils.ObjectUtils import not_none_f
 
 
-def is_datetime(obj):
-    return isinstance(obj, datetime.datetime)
-
-
-def is_datetime_ser(obj):
-    return isinstance(obj, dict) and obj.get("__type__") == "datetime.datetime" and "isoformat" in obj
-
-
-def datetime_encode(obj: datetime.datetime):
-    return {"__type__": "datetime.datetime", "isoformat": obj.isoformat()}
-
-
-def datetime_decode(obj: dict):
-    return datetime.datetime.fromisoformat(obj["isoformat"])
-
-
-async def get_body(request: web.Request) -> str:
+async def _body(request: web.Request) -> str:
     payload = ''
     stream = request.content
     while not stream.at_eof():
@@ -38,7 +21,26 @@ async def get_body(request: web.Request) -> str:
 
 def _success_response(aa):
     # return web.json_response({"status": "success", **aa})
-    return web.Response(body=json.dumps({"status": "success", **aa}, default=add_conv(is_datetime, datetime_encode)))
+    return web.Response(body=json.dumps({"status": "success", **aa}, default=json_serialize_helper))
+
+
+def _failure_json(aa: dict or object):
+    # return web.json_response({"status": "success", **aa})
+    if isinstance(aa, dict):
+        return json.dumps({"status": "error", **aa}, default=json_serialize_helper)
+    else:
+        return json.dumps({"status": "error", 'message': str(aa)})
+
+
+async def _payload_json(request: web.Request, quiet: bool = False) -> dict or None:
+    try:
+        payload = (await (_body(request)) or '').strip()
+        return payload and json.loads(payload) or {}
+    except json.JSONDecodeError as err:
+        if quiet:
+            return None
+        else:
+            raise web.HTTPBadRequest(text=f"cannot parse json: {str(err)}")
 
 
 class WebHandler:
@@ -83,11 +85,13 @@ class WebHandler:
         if request.method == 'GET':
             return _success_response({"result": FileService.get_current_dir()})
 
-        payload = (await get_body(request) or '').strip()
-        data = payload and json.loads(payload) or {}
+        data = await _payload_json(request)
         path = not_none_f(lambda: request.match_info.get('urlpath'), lambda: data.get('path'))
-        FileService.change_dir(path, bool(not_none_f(lambda: data.get('autocreate'), lambda: config.autocreate)))
-        return _success_response({"message": "OK"})
+        try:
+            FileService.change_dir(path, bool(not_none_f(lambda: data.get('autocreate'), lambda: config.autocreate)))
+            return _success_response({"message": "OK"})
+        except (RuntimeError, ValueError) as err:
+            raise web.HTTPBadRequest(text=_failure_json(err))
 
     async def get_files(self, request: web.Request, *args, **kwargs) -> web.Response:
         """Coroutine for getting info about all files in working directory.
@@ -115,8 +119,14 @@ class WebHandler:
         """
 
         # TODO: implement this
-        filename = not_none_f(lambda: request.match_info.get('filename'))
-        return _success_response({"data": (FileService.get_file_data(filename))})
+        filename = request.match_info.get('filename')
+        if filename is None:
+            raise web.HTTPBadRequest(text=_failure_json("No filename specified"))
+            # raise web.HTTPBadRequest(text="No filename specified")
+        try:
+            return _success_response({"data": (FileService.get_file_data(filename))})
+        except (RuntimeError, ValueError) as err:
+            raise web.HTTPBadRequest(text=_failure_json(err))
 
     async def create_file(self, request: web.Request, *args, **kwargs) -> web.Response:
         """Coroutine for creating file.
@@ -136,12 +146,11 @@ class WebHandler:
         """
 
         # TODO: implement this
-        payload = (await get_body(request) or '').strip()
-        data = payload and json.loads(payload) or {}
-        filename = data['filename']
-        content = data.get("content")
-        res = FileService.create_file(filename, content, True)
-        return _success_response({"data": res})
+        try:
+            data = await _payload_json(request)
+            return _success_response({"data": (FileService.create_file(data['filename'], data.get("content"), True))})
+        except (RuntimeError, ValueError) as err:
+            raise web.HTTPBadRequest(text=_failure_json(err))
 
     async def delete_file(self, request: web.Request, *args, **kwargs) -> web.Response:
         """Coroutine for deleting file.
@@ -158,8 +167,10 @@ class WebHandler:
         """
 
         # TODO: implement this
-        payload = (await get_body(request) or '').strip()
-        data = payload and json.loads(payload) or {}
-        filename = data['filename']
-        FileService.delete_file(filename)
-        return _success_response({"message": "File is deleted"})
+        if (filename := request.match_info.get('filename')) is None:
+            raise web.HTTPBadRequest(text="No filename specified")
+        try:
+            FileService.delete_file(filename)
+            return _success_response({"message": "File is deleted"})
+        except (RuntimeError, ValueError) as err:
+            raise web.HTTPBadRequest(text=_failure_json(err))
