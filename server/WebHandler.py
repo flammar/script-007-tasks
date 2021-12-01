@@ -47,11 +47,8 @@ class WebHandler:
     """aiohttp handler with coroutines."""
 
     def __init__(self) -> None:
-        # TODO: fix this
-        # if bool(config.dir):
         os.chdir(config.dir)
         reload(FileService)
-        # FileService.change_dir(dir_from_config)
 
     async def handle(self, request: web.Request, *args, **kwargs) -> web.Response:
         """Basic coroutine for connection testing.
@@ -118,7 +115,6 @@ class WebHandler:
             HTTPBadRequest: 400 HTTP error, if error.
         """
 
-        # TODO: implement this
         filename = request.match_info.get('filename')
         if filename is None:
             raise web.HTTPBadRequest(text=_failure_json("No filename specified"))
@@ -145,9 +141,10 @@ class WebHandler:
             HTTPBadRequest: 400 HTTP error, if error.
         """
 
-        # TODO: implement this
         try:
-            data = await _payload_json(request)
+            urlpath = request.match_info.get('urlpath')
+            data = await _payload_json(request) if urlpath is None \
+                else {'filename': urlpath, "content": await _body(request)}
             return _success_response({"data": (FileService.create_file(data['filename'], data.get("content"), True))})
         except (RuntimeError, ValueError) as err:
             raise web.HTTPBadRequest(text=_failure_json(err))
@@ -166,7 +163,6 @@ class WebHandler:
 
         """
 
-        # TODO: implement this
         if (filename := request.match_info.get('filename')) is None:
             raise web.HTTPBadRequest(text="No filename specified")
         try:
